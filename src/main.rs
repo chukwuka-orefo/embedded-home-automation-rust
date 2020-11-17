@@ -1,5 +1,8 @@
 // embedded-presence-lighting-rust\src\main.rs
 
+use std::thread;
+use std::time::Duration;
+
 use controller::controller::Controller;
 use controller::state_machine::PresenceLightingStateMachine;
 use interfaces::stub_devices::*;
@@ -15,6 +18,14 @@ fn main() {
     let fsm = PresenceLightingStateMachine::default();
     let mut controller = Controller::new(fsm, motion, light, actuator);
 
-    controller.handle_motion_event();
-    controller.tick();
+    loop {
+        // Handle motion events
+        controller.handle_motion_event();
+
+        // Allow FSM time based transitions
+        controller.tick();
+
+        // Prevent busy looping
+        thread::sleep(Duration::from_millis(200));
+    }
 }
