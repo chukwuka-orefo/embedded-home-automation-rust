@@ -19,10 +19,10 @@ fn main() {
     let mut controller = Controller::new(fsm, motion, light, actuator);
 
     loop {
-        // Handle motion events
-        controller.handle_motion_event();
+        // Poll sensors and handle any resulting events
+        controller.poll();
 
-        // Allow FSM time based transitions
+        // Allow FSM time-based transitions
         controller.tick();
 
         // Prevent busy looping
