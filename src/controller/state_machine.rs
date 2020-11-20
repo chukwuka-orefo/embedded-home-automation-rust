@@ -81,7 +81,7 @@ impl PresenceLightingStateMachine {
                 false
             }
             State::MotionDetected | State::Cooldown => {
-                // Motion during cooldown is ignored
+                // Motion during cooldown and transient detection state is ignored
                 false
             }
         }
@@ -119,6 +119,21 @@ impl PresenceLightingStateMachine {
 impl Default for PresenceLightingStateMachine {
     fn default() -> Self {
         PresenceLightingStateMachine::new(300, 10)
+    }
+}
+
+#[cfg(test)]
+impl PresenceLightingStateMachine {
+    pub fn test_on_motion_detected_at(
+        &mut self,
+        ambient_light_is_low: bool,
+        now: Instant,
+    ) -> bool {
+        self.on_motion_detected_at(ambient_light_is_low, now)
+    }
+
+    pub fn test_tick_at(&mut self, now: Instant) -> bool {
+        self.tick_at(now)
     }
 }
 
