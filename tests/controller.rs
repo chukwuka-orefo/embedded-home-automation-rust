@@ -8,33 +8,40 @@ use embedded_presence_lighting::interfaces::stub_devices::{
 
 #[test]
 fn controller_turns_light_on_when_motion_and_low_light() {
-    let motion = StubMotionSensor::new();
+    let mut motion = StubMotionSensor::new();
+    motion.set_motion(true);
+
     let light = StubAmbientLightSensor::new(true);
     let actuator = StubLightActuator::new();
 
     let fsm = PresenceLightingStateMachine::default();
     let mut controller = Controller::new(fsm, motion, light, actuator);
 
-    controller.handle_motion_event();
+    controller.poll();
 
-    assert!(controller.light_actuator.is_on());
+    assert!(controller.actuator().is_on());
 }
 
 #[test]
 fn controller_turns_light_off_after_timeout() {
-    let motion = StubMotionSensor::new();
+    let mut motion = StubMotionSensor::new();
+    motion.set_motion(true);
+
     let light = StubAmbientLightSensor::new(true);
     let actuator = StubLightActuator::new();
 
-    let fsm = PresenceLightingStateMachine::new(1, 1);
+    // Use zero durations to avoid sleeps in integration tests.
+    let fsm = PresenceLightingStateMachine::new(0, 0);
     let mut controller = Controller::new(fsm, motion, light, actuator);
 
-    controller.handle_motion_event();
-    assert!(controller.light_actuator.is_on());
+    controller.poll();
+    assert!(controller.actuator().is_on());
 
-    std::thread::sleep(std::time::Duration::from_secs(2));
-
+    // First tick should trigger turn off immediately.
     controller.tick();
-    assert!(!controller.light_actuator.is_on());
-}
+    assert!(!controller.actuator().is_on());
 
+    // Second tick clears cooldown -> idle, light stays off.
+    controller.tick();
+    assert!(!controller.actuator().is_on());
+}
