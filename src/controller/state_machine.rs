@@ -53,8 +53,17 @@ impl PresenceLightingStateMachine {
     }
 
     fn enter_state(&mut self, new_state: State, now: Instant) {
+        let old_state = self.state;
+
         self.state = new_state;
         self.state_entered = now;
+
+        if old_state != new_state
+            && old_state != State::MotionDetected
+            && new_state != State::MotionDetected
+        {
+            println!("[fsm] state: {} -> {}", old_state, new_state);
+        }
     }
 
     pub fn on_motion_detected(&mut self, ambient_light_is_low: bool) -> bool {
