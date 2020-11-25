@@ -11,6 +11,8 @@ mod controller;
 mod interfaces;
 
 fn main() {
+    println!("[main] starting embedded-presence-lighting (stub mode)");
+
     let motion = StubMotionSensor::new();
     let light = StubAmbientLightSensor::new(true);
     let actuator = StubLightActuator::new();
