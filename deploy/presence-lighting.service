@@ -1,0 +1,34 @@
+#embedded-presence-lighting-rust/deploy/presence-lighting.service
+
+[Unit]
+Description=Embedded Presence Lighting Controller (Rust)
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+
+# Run as a dedicated unprivileged user
+User=presence
+Group=presence
+
+# Working directory for the binary
+WorkingDirectory=/opt/embedded-presence-lighting
+
+# Rust binary (built and installed separately)
+ExecStart=/opt/embedded-presence-lighting/embedded-presence-lighting
+
+# Restart policy for long-running embedded services
+Restart=always
+RestartSec=5
+
+# Log to journald (stdout/stderr)
+StandardOutput=journal
+StandardError=journal
+
+# Conservative limits suitable for embedded devices
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
